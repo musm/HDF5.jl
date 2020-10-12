@@ -33,12 +33,12 @@ function datatype(::Type{foo_hdf5})
     dtype = HDF5.h5t_create(HDF5.H5T_COMPOUND, sizeof(foo_hdf5))
     HDF5.h5t_insert(dtype, "a", fieldoffset(foo_hdf5, 1), datatype(Float64))
 
-    vlenstr_dtype = HDF5.h5t_copy(HDF5.H5T_C_S1)
+    vlenstr_dtype = HDF5.h5t_copy(HDF5.H5T_C_S1[])
     HDF5.h5t_set_size(vlenstr_dtype, HDF5.H5T_VARIABLE)
     HDF5.h5t_set_cset(vlenstr_dtype, HDF5.H5T_CSET_UTF8)
     HDF5.h5t_insert(dtype, "b", fieldoffset(foo_hdf5, 2), vlenstr_dtype)
 
-    fixedstr_dtype = HDF5.h5t_copy(HDF5.H5T_C_S1)
+    fixedstr_dtype = HDF5.h5t_copy(HDF5.H5T_C_S1[])
     HDF5.h5t_set_size(fixedstr_dtype, 20 * sizeof(UInt8))
     HDF5.h5t_set_cset(fixedstr_dtype, HDF5.H5T_CSET_UTF8)
     HDF5.h5t_set_strpad(fixedstr_dtype, HDF5.H5T_STR_NULLPAD)
@@ -65,7 +65,7 @@ end
 function datatype(::Type{bar_hdf5})
     dtype = HDF5.h5t_create(HDF5.H5T_COMPOUND, sizeof(bar_hdf5))
 
-    fixedstr_dtype = HDF5.h5t_copy(HDF5.H5T_C_S1)
+    fixedstr_dtype = HDF5.h5t_copy(HDF5.H5T_C_S1[])
     HDF5.h5t_set_size(fixedstr_dtype, 20 * sizeof(UInt8))
     HDF5.h5t_set_cset(fixedstr_dtype, HDF5.H5T_CSET_UTF8)
 

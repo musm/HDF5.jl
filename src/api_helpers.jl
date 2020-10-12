@@ -299,4 +299,3 @@ end
 ###
 ### Filter Interface
 ###
-

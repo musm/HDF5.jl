@@ -41,8 +41,8 @@ write(f, "salut", salut)
 write(f, "ucode", ucode)
 # Manually write a variable-length string (issue #187)
 let
-    dtype = HDF5.Datatype(HDF5.h5t_copy(HDF5.H5T_C_S1))
-    HDF5.h5t_set_size(dtype.id, HDF5.H5T_VARIABLE)
+    dtype = HDF5.Datatype(HDF5.h5t_copy(HDF5.H5T_C_S1[]))
+    HDF5.h5t_set_size(dtype.id, HDF5.H5T_VARIABLE[])
     HDF5.h5t_set_cset(dtype.id, HDF5.cset(typeof(salut)))
     dspace = HDF5.dataspace(salut)
     dset = HDF5.d_create(f, "salut-vlen", dtype, dspace)
@@ -340,9 +340,9 @@ close(fd)
 rm(fn)
 
 # File creation and access property lists
-cpl = p_create(HDF5.H5P_FILE_CREATE)
+cpl = p_create(HDF5.H5P_FILE_CREATE[])
 cpl[:userblock] = 1024
-apl = p_create(HDF5.H5P_FILE_ACCESS)
+apl = p_create(HDF5.H5P_FILE_ACCESS[])
 apl[:libver_bounds] = (HDF5.H5F_LIBVER_EARLIEST, HDF5.H5F_LIBVER_LATEST)
 h5open(fn, false, true, true, true, false, cpl, apl) do fid
     write(fid, "intarray", [1, 2, 3])
@@ -522,8 +522,8 @@ end # writing abstract arrays
 fn = tempname()
 hfile = h5open(fn, "w")
 
-dtype_varstring = HDF5.Datatype(HDF5.h5t_copy(HDF5.H5T_C_S1))
-HDF5.h5t_set_size(dtype_varstring, HDF5.H5T_VARIABLE)
+dtype_varstring = HDF5.Datatype(HDF5.h5t_copy(HDF5.H5T_C_S1[]))
+HDF5.h5t_set_size(dtype_varstring, HDF5.H5T_VARIABLE[])
 
 write(hfile, "uint8_array", UInt8[(1:8)...])
 write(hfile, "bool_scalar", true)
@@ -595,10 +595,10 @@ dset = d_create(group, "dset", datatype(Int), dataspace((1,)))
 meta = a_create(dset, "meta", datatype(Bool), dataspace((1,)))
 @test sprint(show, meta) == "HDF5 attribute: meta"
 
-prop = p_create(HDF5.H5P_DATASET_CREATE)
+prop = p_create(HDF5.H5P_DATASET_CREATE[])
 @test occursin(r"^HDF5.Properties\(\d+, \d+\)", sprint(show, prop))
 
-dtype = HDF5.Datatype(HDF5.h5t_copy(HDF5.H5T_IEEE_F64LE))
+dtype = HDF5.Datatype(HDF5.h5t_copy(HDF5.H5T_IEEE_F64LE[]))
 @test sprint(show, dtype) == "HDF5 datatype: H5T_IEEE_F64LE"
 
 dspace = dataspace((1,))
