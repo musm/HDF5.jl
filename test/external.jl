@@ -49,6 +49,6 @@ close(source_file)
 # @test read(group2["1.1"])==1.1
 
 rm(fn1)
-# rm(fn2)
+rm(fn2)
 
 end # testset external

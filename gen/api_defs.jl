@@ -79,6 +79,7 @@
 ### File Interface
 ###
 
+@bind h5f_clear_elink_file_cache(file_id::hid_t)::herr_t "Error clearing cached child files in the external file cache"
 @bind h5f_close(file_id::hid_t)::herr_t "Error closing file"
 @bind h5f_create(pathname::Ptr{UInt8}, flags::Cuint, fcpl_id::hid_t, fapl_id::hid_t)::hid_t error("Error creating file ", pathname)
 @bind h5f_flush(object_id::hid_t, scope::Cint)::herr_t "Error flushing object to file"
@@ -166,6 +167,7 @@
 @bind h5p_modify_filter(plist_id::hid_t, filter_id::H5Z_filter_t, flags::Cuint, cd_nelmts::Csize_t, cd_values::Ptr{Cuint})::herr_t "Error modifying filter"
 @bind h5p_set_alignment(plist_id::hid_t, threshold::hsize_t, alignment::hsize_t)::herr_t "Error setting alignment"
 @bind h5p_set_alloc_time(plist_id::hid_t, alloc_time::Cint)::herr_t "Error setting allocation timing"
+@bind h5p_set_elink_file_cache_size(fapl_id::hid_t, efc_size::Cuint)::herr_t "Error setting the number of files to be held open in the external link open file cache"
 @bind h5p_set_char_encoding(plist_id::hid_t, encoding::Cint)::herr_t "Error setting char encoding"
 @bind h5p_set_chunk(plist_id::hid_t, ndims::Cint, dims::Ptr{hsize_t})::herr_t "Error setting chunk size"
 @bind h5p_set_chunk_cache(dapl_id::hid_t, rdcc_nslots::Csize_t, rdcc_nbytes::Csize_t, rdcc_w0::Cdouble)::herr_t "Error setting chunk cache"

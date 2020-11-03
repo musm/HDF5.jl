@@ -75,6 +75,7 @@ h5e_set_auto(estack_id::hid_t, func::Ptr{Cvoid}, client_data::Ptr{Cvoid})
 
 ## [`H5F`](https://portal.hdfgroup.org/display/HDF5/Files) — File Interface
 ```julia
+h5f_clear_elink_file_cache(file_id::hid_t)
 h5f_close(file_id::hid_t)
 h5f_create(pathname::Ptr{UInt8}, flags::Cuint, fcpl_id::hid_t, fapl_id::hid_t)
 h5f_flush(object_id::hid_t, scope::Cint)
@@ -164,6 +165,7 @@ h5p_set_chunk_cache(dapl_id::hid_t, rdcc_nslots::Csize_t, rdcc_nbytes::Csize_t, 
 h5p_set_create_intermediate_group(plist_id::hid_t, setting::Cuint)
 h5p_set_deflate(plist_id::hid_t, setting::Cuint)
 h5p_set_dxpl_mpio(dxpl_id::hid_t, xfer_mode::Cint)
+h5p_set_elink_file_cache_size(fapl_id::hid_t, efc_size::Cuint)
 h5p_set_external(plist_id::hid_t, name::Ptr{UInt8}, offset::Int, size::Csize_t)
 h5p_set_fapl_mpio32(fapl_id::hid_t, comm::Hmpih32, info::Hmpih32)
 h5p_set_fapl_mpio64(fapl_id::hid_t, comm::Hmpih64, info::Hmpih64)

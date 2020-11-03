@@ -330,7 +330,7 @@ struct VariableArray{T}
     len::Csize_t
     p::Ptr{Cvoid}
 end
-Base.eltype(::Type{VariableArray{T}}) where T = T
+Base.eltype(::Type{VariableArray{T}}) where {T} = T
 
 # VLEN objects
 struct VLen{T}
@@ -385,20 +385,20 @@ heuristic_chunk(x) = Int[]
 
 # Open or create an HDF5 file
 function _h5open(filename::AbstractString, rd::Bool, wr::Bool, cr::Bool, tr::Bool, ff::Bool,
-                 cpl::Properties = DEFAULT_PROPERTIES, apl::Properties = DEFAULT_PROPERTIES; swmr::Bool = false)
+                 fcpl::Properties = DEFAULT_PROPERTIES, fapl::Properties = DEFAULT_PROPERTIES; swmr::Bool = false)
     if ff && !wr
         error("HDF5 does not support appending without writing")
     end
     close_apl = false
-    if apl == DEFAULT_PROPERTIES
-        apl = p_create(H5P_FILE_ACCESS)
+    if fapl == DEFAULT_PROPERTIES
+        fapl = p_create(H5P_FILE_ACCESS)
         close_apl = true
         # With garbage collection, the other modes don't make sense
-        apl[:fclose_degree] = H5F_CLOSE_STRONG
+        fapl[:fclose_degree] = H5F_CLOSE_STRONG
     end
     if cr && (tr || !isfile(filename))
         flag = swmr ? H5F_ACC_TRUNC|H5F_ACC_SWMR_WRITE : H5F_ACC_TRUNC
-        fid = h5f_create(filename, flag, cpl, apl)
+        fid = h5f_create(filename, flag, fcpl, fapl)
     else
         if !h5f_is_hdf5(filename)
             error("This does not appear to be an HDF5 file")
@@ -408,12 +408,12 @@ function _h5open(filename::AbstractString, rd::Bool, wr::Bool, cr::Bool, tr::Boo
         else
             flag = swmr ? H5F_ACC_RDONLY|H5F_ACC_SWMR_READ : H5F_ACC_RDONLY
         end
-        fid = h5f_open(filename, flag, apl)
+        fid = h5f_open(filename, flag, fapl)
     end
     if close_apl
         # Close properties manually to avoid errors when the file is
         # closed before the properties are gc'ed
-        close(apl)
+        close(fapl)
     end
     File(fid, filename)
 end
@@ -561,7 +561,17 @@ checkvalid(obj) = isvalid(obj) ? obj : error("File or object has been closed")
 # Close functions that should try calling close regardless
 function Base.close(obj::File)
     if obj.id != -1
-        h5f_close(obj.id)
+
+        id_list = h5f_get_obj_ids(obj, ~H5F_OBJ_FILE)
+        file_list = h5f_get_obj_ids(obj, H5F_OBJ_FILE)
+
+        filter(x -> h5i_get_file_id(x) == x, id_list)
+        filter(x -> h5i_get_file_id(x) == x, file_list)
+
+        foreach(x -> h5i_dec_ref(x), id_list)
+        foreach(x -> h5i_dec_ref(x), file_list)
+
+        # h5f_close(obj)
         obj.id = -1
     end
     nothing

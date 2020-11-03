@@ -249,6 +249,12 @@ function h5e_set_auto(estack_id, func, client_data)
     return nothing
 end
 
+function h5f_clear_elink_file_cache(file_id)
+    var"#status#" = ccall((:H5Fclear_elink_file_cache, libhdf5), herr_t, (hid_t,), file_id)
+    var"#status#" < 0 && error("Error clearing cached child files in the external file cache")
+    return nothing
+end
+
 function h5f_close(file_id)
     var"#status#" = ccall((:H5Fclose, libhdf5), herr_t, (hid_t,), file_id)
     var"#status#" < 0 && error("Error closing file")
@@ -617,6 +623,12 @@ end
 function h5p_set_alloc_time(plist_id, alloc_time)
     var"#status#" = ccall((:H5Pset_alloc_time, libhdf5), herr_t, (hid_t, Cint), plist_id, alloc_time)
     var"#status#" < 0 && error("Error setting allocation timing")
+    return nothing
+end
+
+function h5p_set_elink_file_cache_size(fapl_id, efc_size)
+    var"#status#" = ccall((:H5Pset_elink_file_cache_size, libhdf5), herr_t, (hid_t, Cuint), fapl_id, efc_size)
+    var"#status#" < 0 && error("Error setting the number of files to be held open in the external link open file cache")
     return nothing
 end
 
