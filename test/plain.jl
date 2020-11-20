@@ -41,7 +41,7 @@ write(f, "salut", salut)
 write(f, "ucode", ucode)
 # Manually write a variable-length string (issue #187)
 let
-    dtype = HDF5.Datatype(HDF5.h5t_copy(HDF5.H5T_C_S1))
+    dtype = HDF5.DataType(HDF5.h5t_copy(HDF5.H5T_C_S1))
     HDF5.h5t_set_size(dtype, HDF5.H5T_VARIABLE)
     HDF5.h5t_set_cset(dtype, HDF5.cset(typeof(salut)))
     dspace = dataspace(salut)
@@ -624,7 +624,7 @@ end # empty and 0-size arrays
 fn = tempname()
 hfile = h5open(fn, "w")
 
-dtype_varstring = HDF5.Datatype(HDF5.h5t_copy(HDF5.H5T_C_S1))
+dtype_varstring = HDF5.DataType(HDF5.h5t_copy(HDF5.H5T_C_S1))
 HDF5.h5t_set_size(dtype_varstring, HDF5.H5T_VARIABLE)
 
 write(hfile, "uint8_array", UInt8[(1:8)...])
@@ -692,32 +692,32 @@ group = create_group(hfile, "group")
 @test sprint(show, group) == "HDF5.Group: /group (file: $fn)"
 
 dset = create_dataset(group, "dset", datatype(Int), dataspace((1,)))
-@test sprint(show, dset) == "HDF5.Dataset: /group/dset (file: $fn xfer_mode: 0)"
+@test sprint(show, dset) == "HDF5.DataSet: /group/dset (file: $fn xfer_mode: 0)"
 
 meta = create_attribute(dset, "meta", datatype(Bool), dataspace((1,)))
 @test sprint(show, meta) == "HDF5.Attribute: meta"
 
 dsetattrs = attributes(dset)
-@test sprint(show, dsetattrs) == "Attributes of HDF5.Dataset: /group/dset (file: $fn xfer_mode: 0)"
+@test sprint(show, dsetattrs) == "Attributes of HDF5.DataSet: /group/dset (file: $fn xfer_mode: 0)"
 
 prop = create_property(HDF5.H5P_DATASET_CREATE)
 @test sprint(show, prop) == "HDF5.Properties: dataset create class"
 
-dtype = HDF5.Datatype(HDF5.h5t_copy(HDF5.H5T_IEEE_F64LE))
-@test sprint(show, dtype) == "HDF5.Datatype: H5T_IEEE_F64LE"
+dtype = HDF5.DataType(HDF5.h5t_copy(HDF5.H5T_IEEE_F64LE))
+@test sprint(show, dtype) == "HDF5.DataType: H5T_IEEE_F64LE"
 commit_datatype(hfile, "type", dtype)
-@test sprint(show, dtype) == "HDF5.Datatype: /type H5T_IEEE_F64LE"
+@test sprint(show, dtype) == "HDF5.DataType: /type H5T_IEEE_F64LE"
 
 dspace = dataspace((1,))
-@test occursin(r"^HDF5.Dataspace\(\d+\)", sprint(show, dspace))
+@test occursin(r"^HDF5.DataSpace\(\d+\)", sprint(show, dspace))
 
 # Now test printing after closing each object
 
 close(dspace)
-@test sprint(show, dspace) == "HDF5.Dataspace(-1)"
+@test sprint(show, dspace) == "HDF5.DataSpace(-1)"
 
 close(dtype)
-@test sprint(show, dtype) == "HDF5.Datatype: (invalid)"
+@test sprint(show, dtype) == "HDF5.DataType: (invalid)"
 
 close(prop)
 @test sprint(show, prop) == "HDF5.Properties: (invalid)"
@@ -726,8 +726,8 @@ close(meta)
 @test sprint(show, meta) == "HDF5.Attribute: (invalid)"
 
 close(dset)
-@test sprint(show, dset) == "HDF5.Dataset: (invalid)"
-@test sprint(show, dsetattrs) == "Attributes of HDF5.Dataset: (invalid)"
+@test sprint(show, dset) == "HDF5.DataSet: (invalid)"
+@test sprint(show, dsetattrs) == "Attributes of HDF5.DataSet: (invalid)"
 
 close(group)
 @test sprint(show, group) == "HDF5.Group: (invalid)"
@@ -764,11 +764,11 @@ hfile["inner/data"] = collect(-5:5)
 attributes(hfile["inner/data"])["mode"] = 1
 # non-trivial committed datatype
 # TODO: print more datatype information
-tmeta = HDF5.Datatype(HDF5.h5t_create(HDF5.H5T_COMPOUND, sizeof(Int) + sizeof(Float64)))
+tmeta = HDF5.DataType(HDF5.h5t_create(HDF5.H5T_COMPOUND, sizeof(Int) + sizeof(Float64)))
 HDF5.h5t_insert(tmeta, "scale", 0, HDF5.hdf5_type_id(Int))
 HDF5.h5t_insert(tmeta, "bias", sizeof(Int), HDF5.hdf5_type_id(Float64))
 tstr = datatype("fixed")
-t = HDF5.Datatype(HDF5.h5t_create(HDF5.H5T_COMPOUND, sizeof(tmeta) + sizeof(tstr)))
+t = HDF5.DataType(HDF5.h5t_create(HDF5.H5T_COMPOUND, sizeof(tmeta) + sizeof(tstr)))
 HDF5.h5t_insert(t, "meta", 0, tmeta)
 HDF5.h5t_insert(t, "type", sizeof(tmeta), tstr)
 commit_datatype(hfile, "dtype", t)
@@ -821,20 +821,20 @@ HDF5.show_tree(buf, hfile["inner"], attributes = false)
 HDF5.show_tree(buf, hfile["inner/data"])
 msg = String(take!(buf))
 @test occursin(r"""
-🔢 HDF5.Dataset: /inner/data .*$
+🔢 HDF5.DataSet: /inner/data .*$
 └─ 🏷️ mode"""m, msg)
 # xfer_mode changes between printings, so need regex again
 @test occursin(r"""
-🔢 HDF5.Dataset: /inner/data .*$
+🔢 HDF5.DataSet: /inner/data .*$
 └─ 🏷️ mode"""m, sprint(show3, hfile["inner/data"]))
 
 HDF5.show_tree(buf, hfile["inner/data"], attributes = false)
 @test occursin(r"""
-🔢 HDF5.Dataset: /inner/data .*$"""m, String(take!(buf)))
+🔢 HDF5.DataSet: /inner/data .*$"""m, String(take!(buf)))
 
 HDF5.show_tree(buf, hfile["dtype"])
 @test occursin(r"""
-📄 HDF5.Datatype: /dtype""", String(take!(buf)))
+📄 HDF5.DataType: /dtype""", String(take!(buf)))
 
 # configurable options
 
@@ -967,7 +967,7 @@ hfile[GenericString("test")] = 17.2
 
 # transient types
 memtype_id = HDF5.h5t_copy(HDF5.H5T_NATIVE_DOUBLE)
-dt = HDF5.Datatype(memtype_id)
+dt = HDF5.DataType(memtype_id)
 @test !HDF5.h5t_committed(dt)
 commit_datatype(hfile, GenericString("dt"), dt)
 @test HDF5.h5t_committed(dt)

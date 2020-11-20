@@ -29,11 +29,11 @@ function Base.show(io::IO, prop::Properties)
     end
 end
 
-function Base.show(io::IO, dset::Dataset)
+function Base.show(io::IO, dset::DataSet)
     if isvalid(dset)
-        print(io, "HDF5.Dataset: ", name(dset), " (file: ", dset.file.filename, " xfer_mode: ", dset.xfer.id, ")")
+        print(io, "HDF5.DataSet: ", name(dset), " (file: ", dset.file.filename, " xfer_mode: ", dset.xfer.id, ")")
     else
-        print(io, "HDF5.Dataset: (invalid)")
+        print(io, "HDF5.DataSet: (invalid)")
     end
 end
 
@@ -48,8 +48,8 @@ function Base.show(io::IO, attr::Attributes)
     print(io, "Attributes of ", attr.parent)
 end
 
-function Base.show(io::IO, dtype::Datatype)
-    print(io, "HDF5.Datatype: ")
+function Base.show(io::IO, dtype::DataType)
+    print(io, "HDF5.DataType: ")
     if isvalid(dtype)
         h5t_committed(dtype) && print(io, name(dtype), " ")
         print(io, h5lt_dtype_to_text(dtype))
@@ -88,7 +88,7 @@ Configurable option to control whether emoji icons (`true`) or a plain-text anno
 """
 const SHOW_TREE_ICONS = Ref{Bool}(true)
 
-function Base.show(io::IO, ::MIME"text/plain", obj::Union{File,Group,Dataset,Attributes,Attribute})
+function Base.show(io::IO, ::MIME"text/plain", obj::Union{File,Group,DataSet,Attributes,Attribute})
     if SHOW_TREE[]
         show_tree(io, obj)
     else
@@ -100,15 +100,15 @@ function _tree_icon(obj)
     if SHOW_TREE_ICONS[]
         return obj isa Attribute ? "🏷️" :
                obj isa Group ? "📂" :
-               obj isa Dataset ? "🔢" :
-               obj isa Datatype ? "📄" :
+               obj isa DataSet ? "🔢" :
+               obj isa DataType ? "📄" :
                obj isa File ? "🗂️" :
                "❓"
     else
         return obj isa Attribute ? "[A]" :
                obj isa Group ? "[G]" :
-               obj isa Dataset ? "[D]" :
-               obj isa Datatype ? "[T]" :
+               obj isa DataSet ? "[D]" :
+               obj isa DataType ? "[T]" :
                obj isa File ? "[F]" :
                "[?]"
     end
@@ -116,7 +116,7 @@ end
 _tree_icon(obj::Attributes) = _tree_icon(obj.parent)
 
 _tree_head(io::IO, obj) = print(io, _tree_icon(obj), " ", obj)
-_tree_head(io::IO, obj::Datatype) = print(io, _tree_icon(obj), " HDF5.Datatype: ", name(obj))
+_tree_head(io::IO, obj::DataType) = print(io, _tree_icon(obj), " HDF5.DataType: ", name(obj))
 
 function _tree_children(parent::Union{File, Group}, attributes::Bool)
     names = keys(parent)
@@ -129,7 +129,7 @@ function _tree_children(parent::Union{File, Group}, attributes::Bool)
     end
     return (names, objs)
 end
-function _tree_children(parent::Dataset, attributes::Bool)
+function _tree_children(parent::DataSet, attributes::Bool)
     names = String[]
     objs = Union{Object, Attribute}[parent[n] for n in names]
     if attributes
@@ -145,12 +145,12 @@ function _tree_children(parent::Attributes, attributes::Bool)
     objs  = Union{Object,Attribute}[parent[n] for n in names]
     return (names, objs)
 end
-function _tree_children(parent::Union{Attribute, Datatype}, attributes::Bool)
+function _tree_children(parent::Union{Attribute, DataType}, attributes::Bool)
     # TODO: add our own implementation of much of what h5lt_dtype_to_text() does?
     return (String[], Union{Object, Attribute}[])
 end
 
-function _show_tree(io::IO, obj::Union{File,Group,Dataset,Datatype,Attributes,Attribute}, indent::String="";
+function _show_tree(io::IO, obj::Union{File,Group,DataSet,DataType,Attributes,Attribute}, indent::String="";
                     attributes::Bool = true)
     isempty(indent) && _tree_head(io, obj)
     !isvalid(obj) && return

@@ -195,7 +195,7 @@
 @bind h5r_get_region(loc_id::hid_t, ref_type::Cint, ref::Ptr{Cvoid})::hid_t "Error getting region from reference"
 
 ###
-### Dataspace Interface
+### DataSpace Interface
 ###
 
 @bind h5s_close(space_id::hid_t)::herr_t "Error closing dataspace"
@@ -210,7 +210,7 @@
 @bind h5s_select_hyperslab(dspace_id::hid_t, seloper::Cint, start::Ptr{hsize_t}, stride::Ptr{hsize_t}, count::Ptr{hsize_t}, block::Ptr{hsize_t})::herr_t "Error selecting hyperslab"
 
 ###
-### Datatype Interface
+### DataType Interface
 ###
 
 @bind h5t_array_create(basetype_id::hid_t, ndims::Cuint, sz::Ptr{hsize_t})::hid_t error("Error creating H5T_ARRAY of id ", basetype_id, " and size ", sz)

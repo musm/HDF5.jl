@@ -380,7 +380,7 @@ g = create_group(parent, name[, lcpl, dcpl])
 dset = create_dataset(parent, name, data[, lcpl, dcpl, dapl])
 attr = create_attribute(parent, name, data)
 ```
-creates groups, datasets, and attributes without writing any data to them. You can then use `write(obj, data)` to store the data. The optional property lists allow even more fine-grained control. This syntax uses `data` to infer the object's "HDF5.datatype" and "HDF5.dataspace"; for the most explicit control, `data` can be replaced with `dtype, dspace`, where `dtype` is an `HDF5.Datatype` and `dspace` is an `HDF5.Dataspace`.
+creates groups, datasets, and attributes without writing any data to them. You can then use `write(obj, data)` to store the data. The optional property lists allow even more fine-grained control. This syntax uses `data` to infer the object's "HDF5.datatype" and "HDF5.dataspace"; for the most explicit control, `data` can be replaced with `dtype, dspace`, where `dtype` is an `HDF5.DataType` and `dspace` is an `HDF5.DataSpace`.
 
 Analogously, to create committed data types, use
 ```julia

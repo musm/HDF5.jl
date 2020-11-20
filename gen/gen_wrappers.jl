@@ -74,7 +74,7 @@ This page documents the function names and nominal C argument types of the API w
 have bindings in this package.
 Note that in many cases, high-level data types are valid arguments through automatic
 `ccall` conversions.
-For instance, `HDF5Datatype` objects will be automatically converted to their `hid_t` ID
+For instance, `HDF5.DataType` objects will be automatically converted to their `hid_t` ID
 by Julia's `cconvert`+`unsafe_convert` `ccall` rules.
 
 There are additional helper wrappers (often for out-argument functions) which are not

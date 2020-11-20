@@ -57,7 +57,7 @@ function h5read(filename, name::AbstractString, indices::Tuple{Vararg{Union{Abst
     depwarn("h5read with string key and value argument pairs is deprecated. Use keywords instead.", :h5read)
     return h5read(filename, name, indices; [Symbol(pv[i]) => pv[i+1] for i in 1:2:length(pv)]...)
 end
-function d_create(parent::Union{File,Group}, path::AbstractString, dtype::Datatype, dspace::D, prop1::AbstractString, val1, pv...) where D <: Union{Dataspace, Dims, Tuple{Dims,Dims}}
+function d_create(parent::Union{File,Group}, path::AbstractString, dtype::DataType, dspace::D, prop1::AbstractString, val1, pv...) where D <: Union{DataSpace, Dims, Tuple{Dims,Dims}}
     depwarn("d_create with string key and value argument pairs is deprecated. Use create_dataset with keywords instead.", :d_create)
     props = (prop1, val1, pv...)
     return create_dataset(parent, path, dtype, dspace; [Symbol(props[i]) => props[i+1] for i in 1:2:length(props)]...)
@@ -76,15 +76,15 @@ end
 ### Changed in PR#652
 # - read takes array element type, not Array with eltype
 import Base: read
-@deprecate read(obj::DatasetOrAttribute, ::Type{A}, I...) where {A<:Array} read(obj, eltype(A), I...)
+@deprecate read(obj::DataSetOrAttribute, ::Type{A}, I...) where {A<:Array} read(obj, eltype(A), I...)
 
 ### Changed in PR#657
 # - using keywords instead of HDF5Properties objects
 
 # deprecation helpers to avoid having default values on the equivalent low-level
 # constructors in HDF5.jl
-function __d_create(parent::Union{File, Group}, path::AbstractString, dtype::Datatype,
-                   dspace::Dataspace, lcpl::Properties,
+function __d_create(parent::Union{File, Group}, path::AbstractString, dtype::DataType,
+                   dspace::DataSpace, lcpl::Properties,
                    dcpl::Properties = DEFAULT_PROPERTIES,
                    dapl::Properties = DEFAULT_PROPERTIES,
                    dxpl::Properties = DEFAULT_PROPERTIES)
@@ -159,7 +159,7 @@ function Base.write(parent::Union{File,Group}, name::AbstractString, data::Union
         close(dtype)
     end
 end
-function Base.write(parent::Dataset, name::AbstractString, data::Union{T,AbstractArray{T}},
+function Base.write(parent::DataSet, name::AbstractString, data::Union{T,AbstractArray{T}},
                     prop1::Properties, plists::Properties...) where {T<:Union{ScalarType,<:AbstractString}}
     depwarn("`write(parent::HDF5Dataset, name::AbstractString, data, plists::HDF5Properties...)` " *
             "with property lists is deprecated, use " *
@@ -211,9 +211,9 @@ end
 @deprecate_binding HDF5Attribute HDF5.Attribute
 @deprecate_binding HDF5File HDF5.File
 @deprecate_binding HDF5Group HDF5.Group
-@deprecate_binding HDF5Dataset HDF5.Dataset
-@deprecate_binding HDF5Datatype HDF5.Datatype
-@deprecate_binding HDF5Dataspace HDF5.Dataspace
+@deprecate_binding HDF5Dataset HDF5.DataSet
+@deprecate_binding HDF5Datatype HDF5.DataType
+@deprecate_binding HDF5Dataspace HDF5.DataSpace
 @deprecate_binding HDF5Object HDF5.Object
 @deprecate_binding HDF5Properties HDF5.Properties
 @deprecate_binding HDF5Vlen HDF5.VLen
@@ -235,8 +235,8 @@ import Base: names
 @deprecate names(x::Union{Group,File,Attributes}) keys(x) false
 
 ### Changed in PR#694
-@deprecate has(parent::Union{File,Group,Dataset}, path::AbstractString) Base.haskey(parent, path)
-@deprecate exists(parent::Union{File,Group,Dataset,Datatype,Attributes}, path::AbstractString) Base.haskey(parent, path)
+@deprecate has(parent::Union{File,Group,DataSet}, path::AbstractString) Base.haskey(parent, path)
+@deprecate exists(parent::Union{File,Group,DataSet,DataType,Attributes}, path::AbstractString) Base.haskey(parent, path)
 
 ### Changed in PR#723
 # - Move type-based specializations of low-level h5(a|d)_(read|write) methods to be methods
@@ -334,22 +334,22 @@ end
 
 function writearray(attr::Attribute, dtype_id::hid_t, x)
     depwarn("`writearray(attr, dtype.id, x)` is deprecated, use `write_attribute(attr, dtype, x)` instead", :writearray)
-    dtype = Datatype(dtype_id, false)
+    dtype = DataType(dtype_id, false)
     write_attribute(attr, dtype, x)
 end
-function writearray(dset::Dataset, dtype_id::hid_t, x)
+function writearray(dset::DataSet, dtype_id::hid_t, x)
     depwarn("`writearray(dset, dtype.id, x)` is deprecated, use `write_dataset(dset, dtype, x)` instead", :writearray)
-    dtype = Datatype(dtype_id, false)
+    dtype = DataType(dtype_id, false)
     write_dataset(dset, dtype, x)
 end
 function readarray(obj::Attribute, dtype_id::hid_t, buf)
     depwarn("`readarray(attr, dtype.id, buf)` is deprecated, use `read_attribute(attr, dtype, buf)` instead", :readarray)
-    dtype = Datatype(dtype_id, false)
+    dtype = DataType(dtype_id, false)
     read_attribute(attr, dtype, buf)
 end
-function readarray(dset::Dataset, dtype_id::hid_t, buf)
+function readarray(dset::DataSet, dtype_id::hid_t, buf)
     depwarn("`readarray(dset, dtype.id, buf)` is deprecated, use `read_dataset(dset, dtype, buf)` instead", :readarray)
-    dtype = Datatype(dtype_id, false)
+    dtype = DataType(dtype_id, false)
     read_dataset(dset, dtype, buf)
 end
 @deprecate h5f_create(pathname) h5f_create(pathname, HDF5.H5F_ACC_TRUNC, HDF5.H5P_DEFAULT, HDF5.H5P_DEFAULT) false
@@ -377,7 +377,7 @@ end
 ### Changed in PR#732
 # - Removed hdf5_to_julia{,_eltype}(obj); using get_jl_type(obj) instead.
 @deprecate hdf5_to_julia_eltype(obj) get_jl_type(obj) false
-function hdf5_to_julia(obj::Union{Dataset, Attribute})
+function hdf5_to_julia(obj::Union{DataSet, Attribute})
     depwarn("`hdf5_to_julia(obj)` is deprecated. Use `get_jl_type(obj)` to get the [element] type instead.", :hdf5_to_julia)
     local T
     objtype = datatype(obj)
@@ -401,9 +401,9 @@ function ismmappable(::Type{Array{T}}) where {T <: ScalarType}
     depwarn("`ismmappable(obj, ::Type{A} where {A <: Array}` is deprecated. Pass the array element type instead.", :ismmappable)
     return true
 end
-function readmmap(obj::Dataset, ::Type{Array{T}}) where {T <: ScalarType}
+function readmmap(obj::DataSet, ::Type{Array{T}}) where {T <: ScalarType}
     depwarn("`readmmap(obj, ::Type{A}) where {A <: Array}` is deprecated. Pass the array element type instead.", :readmmap)
-    return readmmap(obj::Dataset, T)
+    return readmmap(obj::DataSet, T)
 end
 
 
@@ -438,3 +438,7 @@ end
 @deprecate t_create create_datatype
 @deprecate t_open   open_datatype
 @deprecate t_commit commit_datatype
+
+@deprecate_binding Dataset HDF5.DataSet false
+@deprecate_binding Datatype HDF5.DataType false
+@deprecate_binding Dataspace HDF5.DataSpace false
